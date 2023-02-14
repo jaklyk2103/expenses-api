@@ -6,7 +6,8 @@
   "scripts": {
     "test": "jest --passWithNoTests",
     "build": "tsc",
-    "run-locally": "node dist/local.js"
+    "run-locally": "node dist/local.js",
+    "deploy": "node deployment/deploy.js"
   },
   "author": "",
   "license": "ISC",
