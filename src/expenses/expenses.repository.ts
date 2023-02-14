@@ -1,26 +1,34 @@
 import IExpensesRepository from './expenses.repository.interface';
 import { Currency } from '../shared/types';
 import { Expense } from './expenses.types';
-import { DynamoDB } from '@aws-sdk/client-dynamodb';
+import { AttributeValue, DynamoDBClient, QueryCommand } from '@aws-sdk/client-dynamodb';
+import { PrimaryKeyValues } from '../db/database.types';
 
 export default class ExpensesRepository implements IExpensesRepository {
   async getAllExpenses(): Promise<Expense[]> {
-    const dynamodb = new DynamoDB();
-    const result = await dynamodb.query({
+    const dbClient = new DynamoDBClient({ region: 'eu-west-1' });
+    const queryCommand = new QueryCommand({
       TableName: 'expenses-test',
       ExpressionAttributeValues: {
-        ':v1': {
-          S: 'LOGIN'
+        ':recordType': {
+          S: PrimaryKeyValues.EXPENSE
         }
       }, 
-      KeyConditionExpression: 'recordType = :v1'
-    }).promise();
-    console.log(`Items: ${result.Items}`);
+      KeyConditionExpression: 'recordType = :recordType'
+    });
+    const result = await dbClient.send(queryCommand);
+    console.log(`Items: ${JSON.stringify(result.Items)}`);
 
-    return [{
-      currency: Currency.PLN,
-      description: 'desc',
-      value: 20,
-    }];
+    if (!result.Items || !result.Items.length) return [];
+    return result.Items.map(this.mapRecordToExpense);
+  }
+
+  private mapRecordToExpense(record: Record<string, AttributeValue>): Expense {
+    const { currency, description, value } = record;
+    return {
+      currency: currency?.S || '',
+      description: description?.S || '',
+      value: Number(value?.N) || 0
+    };
   }
 }

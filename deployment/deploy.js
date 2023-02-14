@@ -72,7 +72,7 @@ async function deployApplication() {
   removeDependencies();
   await installDependencies(true);
   copyDependenciesToTheBuiltApplication();
-  deployApplicationUsingSamCli();
+  await deployApplicationUsingSamCli();
 }
 
 async function processDeploymentPipeline() {
