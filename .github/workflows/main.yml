@@ -1,4 +1,4 @@
-name: Deploy after merge
+name: Test and build after merge
 'on':
   push:
     branches:
@@ -8,5 +8,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: aws-actions/setup-sam@v2
-      - run: npm ci && npm run test && npm run build && cd deployment && sam deploy
+      - run: npm ci && npm run test && npm run build
