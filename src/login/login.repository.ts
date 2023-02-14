@@ -1,12 +1,20 @@
-import { DynamoDBClient, QueryCommand } from '@aws-sdk/client-dynamodb';
+import { DynamoDBClient, QueryCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
 import { PrimaryKeyValues } from '../db/database.types';
+import { generateRandomToken } from '../shared/tokenGenerator';
 import ILoginRepository from './login.repository.interface';
 
 export default class LoginRepository implements ILoginRepository {
+  private dbClient: DynamoDBClient;
+  private tableName: string;
+
+  constructor(dbClient: DynamoDBClient, tableName: string) {
+    this.dbClient = dbClient;
+    this.tableName = tableName;
+  }
+
   async getUserToken(email: string): Promise<string> {
-    const dbClient = new DynamoDBClient({ region: 'eu-west-1' });
     const queryCommand = new QueryCommand({
-      TableName: 'expenses-test',
+      TableName: this.tableName,
       ExpressionAttributeValues: {
         ':recordType': {
           S: PrimaryKeyValues.LOGIN
@@ -18,7 +26,7 @@ export default class LoginRepository implements ILoginRepository {
       KeyConditionExpression: 'recordType = :recordType AND recordUniqueInformation = :uniqueInformation'
     });
 
-    const result = await dbClient.send(queryCommand);
+    const result = await this.dbClient.send(queryCommand);
     if (!result.Items) {
       throw new Error('User not found');
     } 
@@ -28,8 +36,27 @@ export default class LoginRepository implements ILoginRepository {
     const record = result.Items[0];
     return record.token.S || '';
   }
-  updateUserToken(): Promise<void> {
-    throw new Error('Method not implemented.');
+  
+  async updateUserToken(email: string): Promise<void> {
+    const updateCommand = new UpdateItemCommand({
+      TableName: this.tableName,
+      Key: {
+        recordType: {
+          S: PrimaryKeyValues.LOGIN
+        },
+        recordUniqueInformation: {
+          S: email
+        }
+      },
+      ExpressionAttributeValues: {
+        ':newTokenValue': {
+          S: generateRandomToken()
+        }
+      },
+      UpdateExpression: 'token = :newTokenValue'
+    });
+    
+    await this.dbClient.send(updateCommand);
   }
   deleteUserToken(): Promise<void> {
     throw new Error('Method not implemented.');

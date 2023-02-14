@@ -1,6 +1,6 @@
 export default interface ILoginRepository {
   getUserToken(email: string): Promise<string>;
-  updateUserToken(): Promise<void>;
+  updateUserToken(email: string): Promise<void>;
   deleteUserToken(): Promise<void>;
   registerUser(): Promise<void>;
 }
