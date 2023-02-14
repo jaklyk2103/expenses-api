@@ -9,4 +9,4 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: aws-actions/setup-sam@v2
-      - run: npm ci && npm run test && npm run build && sam deploy
+      - run: npm ci && npm run test && npm run build && cd deployment && sam deploy
