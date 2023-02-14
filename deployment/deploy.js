@@ -40,15 +40,6 @@ async function buildApplication() {
   return executor.execute('npm run build');
 }
 
-async function prepareApplicationForDeployment() {
-  goToTheRootProjectLocation();
-  fs.rmSync("dist", { recursive: true, force: true });
-  removeDependencies();
-
-  await installDependencies();
-  await buildApplication();
-}
-
 function copyDependenciesToTheBuiltApplication() {
   process.stdout.write("Copying node modules folder to dist... ");
   fs.cpSync("node_modules/", "dist/node_modules/", { recursive: true, force: true });
@@ -62,16 +53,35 @@ async function deployApplicationUsingSamCli() {
   process.stdout.write("Done.\n");
 }
 
-function deployApplication() {
+async function prepareApplicationForDeployment() {
+  goToTheRootProjectLocation();
+  fs.rmSync("dist", { recursive: true, force: true });
   removeDependencies();
-  installDependencies(true)
-  .then(() => {
-    copyDependenciesToTheBuiltApplication();
-    deployApplicationUsingSamCli();
-  });
+
+  await installDependencies();
+  await buildApplication();
 }
 
-prepareApplicationForDeployment()
+async function testApplication() {
+  process.stdout.write('Testing application... ');
+  await executor.execute('npm run test');
+  process.stdout.write('Done.\n');
+}
+
+async function deployApplication() {
+  removeDependencies();
+  await installDependencies(true);
+  copyDependenciesToTheBuiltApplication();
+  deployApplicationUsingSamCli();
+}
+
+async function processDeploymentPipeline() {
+  await prepareApplicationForDeployment();
+  await testApplication();
+  await deployApplication();
+}
+
+processDeploymentPipeline()
 .then(() => {
-  deployApplication();
+  process.exit(0);
 });
