@@ -3,7 +3,7 @@
         "browser": true,
         "es2021": true
     },
-    "ignorePatterns": ["dist", "deployment", "**.test.ts"],
+    "ignorePatterns": ["dist", "deployment", "**.test.ts", "*.config.js"],
     "extends": [
         "eslint:recommended",
         "plugin:@typescript-eslint/recommended"
