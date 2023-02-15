@@ -2,7 +2,7 @@ import { AttributeValue, DynamoDBClient, QueryCommand, UpdateItemCommand, PutIte
 import { PrimaryKeyValues } from '../db/database.types';
 import { generateRandomToken, hashPassword } from '../shared/cryptoUtils';
 import IUserRepository from './user.repository.interface';
-import { RegisterUserPayload, UpdateUserTokenPayload, User } from './types/user.types';
+import { LogoutUserPayload, RegisterUserPayload, UpdateUserTokenPayload, User } from './types/user.types';
 
 export default class UserRepostory implements IUserRepository {
   private dbClient: DynamoDBClient;
@@ -42,7 +42,7 @@ export default class UserRepostory implements IUserRepository {
   async updateUserToken(updateUserTokenPayload: UpdateUserTokenPayload): Promise<string> {
     const { email } = updateUserTokenPayload;
     const newTokenValue = generateRandomToken();
-    const updateCommand = new UpdateItemCommand({
+    const updateItemCommand = new UpdateItemCommand({
       TableName: this.tableName,
       Key: {
         recordType: {
@@ -63,11 +63,31 @@ export default class UserRepostory implements IUserRepository {
       UpdateExpression: 'SET sessionToken = :newTokenValue, sessionTokenValidityTimestampMsUtc = :newTimestampValue'
     });
     
-    await this.dbClient.send(updateCommand);
+    await this.dbClient.send(updateItemCommand);
     return newTokenValue;
   }
-  deleteUserToken(): Promise<void> {
-    throw new Error('Method not implemented.');
+
+  async deleteUserToken(logoutUserPayload: LogoutUserPayload): Promise<void> {
+    const { email } = logoutUserPayload;
+
+    const updateItemCommand = new UpdateItemCommand({
+      TableName: this.tableName,
+      Key: {
+        recordType: {
+          S: PrimaryKeyValues.USER
+        },
+        recordUniqueInformation: {
+          S: email
+        }
+      },
+      ExpressionAttributeValues: {
+        ':nullValue': {
+          NULL: true
+        }
+      },
+      UpdateExpression: 'SET sessionToken = :nullValue, sessionTokenValidityTimestampMsUtc = :nullValue'
+    });
+    await this.dbClient.send(updateItemCommand);
   }
 
   async registerUser(registerUserPayload: RegisterUserPayload): Promise<void> {
@@ -76,7 +96,7 @@ export default class UserRepostory implements IUserRepository {
     const { hashedPassword, salt } = await hashPassword(password);
 
     const putItemCommand = new PutItemCommand({
-      TableName: 'expenses-test',
+      TableName: this.tableName,
       Item: {
         recordType: {
           S: PrimaryKeyValues.USER

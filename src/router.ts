@@ -28,6 +28,15 @@ router.post('/login', async (req: Request, res: Response) => {
   res.send(sessionToken);
 });
 
+router.post('/logout', async (req: Request, res: Response) => {
+  const userRepository = new UserRepository(dynamoDbClient, 'expenses-test');
+  const userService = new UserService(userRepository);
+
+  const { email } = req.body;
+  await userService.logoutUser({ email });
+  res.status(200).send('User logged out successfully.');
+});
+
 router.post('/register', async (req: Request, res: Response) => {
   const userRepository = new UserRepository(dynamoDbClient, 'expenses-test');
   const userService = new UserService(userRepository);

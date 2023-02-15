@@ -1,5 +1,5 @@
 import IUserRepository from './user.repository.interface';
-import { LoginUserPayload, RegisterUserPayload, UserCredentialVerificationPayload } from './types/user.types';
+import { LoginUserPayload, LogoutUserPayload, RegisterUserPayload, UserCredentialVerificationPayload } from './types/user.types';
 import { isHashedPasswordCorrect } from '../shared/cryptoUtils';
 
 export default class UserService {
@@ -13,12 +13,16 @@ export default class UserService {
     return await this.userRepository.registerUser(registerUserPayload);
   }
 
-  async loginUser(loginUserPayload: LoginUserPayload): Promise<string>  {
+  async loginUser(loginUserPayload: LoginUserPayload): Promise<string> {
     const { email, password } = loginUserPayload;
     const areUsersCredentialsCorrect = await this.areUsersCredentialsCorrect({ email, password });
     if (!areUsersCredentialsCorrect) throw new Error('Users credentials incorrect.');
 
     return this.userRepository.updateUserToken(loginUserPayload);
+  }
+
+  async logoutUser(logoutUserPayload: LogoutUserPayload): Promise<void> {
+    return this.userRepository.deleteUserToken(logoutUserPayload);
   }
 
   private async areUsersCredentialsCorrect(userCredentialVerificationPayload: UserCredentialVerificationPayload): Promise<boolean> {

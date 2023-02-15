@@ -3,6 +3,10 @@ export type LoginUserPayload = {
   password: string
 };
 
+export type LogoutUserPayload = {
+  email: string
+}
+
 export type UpdateUserTokenPayload = {
   email: string
 };
