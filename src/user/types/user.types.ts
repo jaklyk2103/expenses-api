@@ -5,7 +5,7 @@ export type LoginUserPayload = {
 
 export type LogoutUserPayload = {
   email: string
-}
+};
 
 export type UpdateUserTokenPayload = {
   email: string
@@ -14,12 +14,12 @@ export type UpdateUserTokenPayload = {
 export type RegisterUserPayload = {
   email: string,
   password: string
-}
+};
 
 export type DeleteUserPayload = {
   email: string,
   password: string
-}
+};
 
 export type UserCredentialVerificationPayload = {
   email: string,

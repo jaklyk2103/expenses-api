@@ -56,7 +56,7 @@ router.post('/user/delete', async (req: Request, res: Response) => {
   const { email, password } = req.body;
   await userService.deleteUser({ email, password });
   res.status(200).send('Deleted user successfully');
-})
+});
 
 router.post('/expense', (req: Request, res: Response) => {
   res.send('Hello World!');
