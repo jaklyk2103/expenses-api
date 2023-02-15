@@ -27,7 +27,7 @@ export default class UserService {
 
   async deleteUser(deleteUserPayload: DeleteUserPayload): Promise<void> {
     const areUsersCredentialsCorrect = await this.areUsersCredentialsCorrect(deleteUserPayload);
-    if (!areUsersCredentialsCorrect) throw new Error('Users credentials incorrect');
+    if (!areUsersCredentialsCorrect) throw new Error('Users credentials incorrect.');
     return this.userRepository.deleteUser(deleteUserPayload);
   }
 
