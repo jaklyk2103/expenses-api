@@ -2,7 +2,11 @@ import express, { Request, Response } from 'express';
 const router = express.Router();
 import ExpensesService from './expenses/expenses.service';
 import ExpensesRepository from './expenses/expenses.repository';
-import LoginService from './login/login.service';
+import UserService from './user/user.service';
+import UserRepository from './user/user.repository';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb'; 
+
+const dynamoDbClient = new DynamoDBClient({ region: 'eu-west-1' });
 
 router.get('/expenses', async (req: Request, res: Response) => {
   const expensesRepository = new ExpensesRepository();
@@ -12,10 +16,29 @@ router.get('/expenses', async (req: Request, res: Response) => {
   return res.json(expenses).status(200);
 });
 
-router.post('/login', (req: Request, res: Response) => {
-  const loginService = new LoginService();
-  res.send('Hello World!');
+router.post('/login', async (req: Request, res: Response) => {
+  const userRepository = new UserRepository(dynamoDbClient, 'expenses-test');
+  const userService = new UserService(userRepository);
+
+  const { email, password } = req.body;
+  const sessionToken = await userService.loginUser({
+    email,
+    password
+  });
+  res.send(sessionToken);
 });
+
+router.post('/register', async (req: Request, res: Response) => {
+  const userRepository = new UserRepository(dynamoDbClient, 'expenses-test');
+  const userService = new UserService(userRepository);
+
+  const { email, password } = req.body;
+  await userService.registerUser({
+    email,
+    password
+  });
+  res.status(200).send('Success');
+})
 
 router.post('/expense', (req: Request, res: Response) => {
   res.send('Hello World!');

@@ -1,4 +1,4 @@
 export enum PrimaryKeyValues {
   EXPENSE = 'EXPENSE',
-  LOGIN = 'LOGIN'
+  USER = 'USER'
 }

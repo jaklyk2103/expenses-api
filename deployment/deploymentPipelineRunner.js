@@ -37,7 +37,9 @@ async function installDependencies(forProduction = false) {
 }
 
 async function buildApplication() {
-  return executor.execute('npm run build');
+  process.stdout.write("Building application... ");
+  await executor.execute('npm run build');
+  process.stdout.write('Done.\n');
 }
 
 function copyDependenciesToTheBuiltApplication() {
