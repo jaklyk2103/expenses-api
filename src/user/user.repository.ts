@@ -7,6 +7,7 @@ import { RegisterUserPayload, UpdateUserTokenPayload, User } from './types/user.
 export default class UserRepostory implements IUserRepository {
   private dbClient: DynamoDBClient;
   private tableName: string;
+  private sessionTokenLifeDurationMs = 2592000000; // 30days
 
   constructor(dbClient: DynamoDBClient, tableName: string) {
     this.dbClient = dbClient;
@@ -56,7 +57,7 @@ export default class UserRepostory implements IUserRepository {
           S: newTokenValue
         },
         ':newTimestampValue': {
-          S: new Date().getTime().toString()
+          S: this.calculateSessionTokenExpiryTimestamp()
         }
       },
       UpdateExpression: 'SET sessionToken = :newTokenValue, sessionTokenValidityTimestampMsUtc = :newTimestampValue'
@@ -104,5 +105,9 @@ export default class UserRepostory implements IUserRepository {
       sessionToken: sessionToken?.S || '',
       sessionTokenValidityTimestampMsUtc: sessionTokenValidityTimestampMsUtc?.S || '',
     };
+  }
+
+  private calculateSessionTokenExpiryTimestamp(): string {
+    return (new Date().getTime() + this.sessionTokenLifeDurationMs).toString();
   }
 }

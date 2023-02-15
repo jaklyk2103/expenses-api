@@ -1,0 +1,17 @@
+POST https://fs4d02d2t1.execute-api.eu-west-1.amazonaws.com/prod/register HTTP/1.1
+content-type: application/json
+
+{
+    "email": "test@email.com",
+    "password": "testpassword123"
+}
+
+###
+
+POST https://fs4d02d2t1.execute-api.eu-west-1.amazonaws.com/prod/login HTTP/1.1
+content-type: application/json
+
+{
+    "email": "test@email.com",
+    "password": "testpassword123"
+}
