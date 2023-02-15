@@ -47,6 +47,15 @@ router.post('/register', async (req: Request, res: Response) => {
     password
   });
   res.status(200).send('Success');
+});
+
+router.post('/user/delete', async (req: Request, res: Response) => {
+  const userRepository = new UserRepository(dynamoDbClient, 'expenses-test');
+  const userService = new UserService(userRepository);
+
+  const { email, password } = req.body;
+  await userService.deleteUser({ email, password });
+  res.status(200).send('Deleted user successfully');
 })
 
 router.post('/expense', (req: Request, res: Response) => {

@@ -1,8 +1,8 @@
-import { AttributeValue, DynamoDBClient, QueryCommand, UpdateItemCommand, PutItemCommand } from '@aws-sdk/client-dynamodb';
+import { AttributeValue, DynamoDBClient, QueryCommand, UpdateItemCommand, PutItemCommand, DeleteItemCommand } from '@aws-sdk/client-dynamodb';
 import { PrimaryKeyValues } from '../db/database.types';
 import { generateRandomToken, hashPassword } from '../shared/cryptoUtils';
 import IUserRepository from './user.repository.interface';
-import { LogoutUserPayload, RegisterUserPayload, UpdateUserTokenPayload, User } from './types/user.types';
+import { DeleteUserPayload, LogoutUserPayload, RegisterUserPayload, UpdateUserTokenPayload, User } from './types/user.types';
 
 export default class UserRepostory implements IUserRepository {
   private dbClient: DynamoDBClient;
@@ -14,6 +14,22 @@ export default class UserRepostory implements IUserRepository {
     this.tableName = tableName;
   }
 
+  async deleteUser(deleteUserPayload: DeleteUserPayload): Promise<void> {
+    const { email } = deleteUserPayload;
+    const deleteItemCommand = new DeleteItemCommand({
+      TableName: this.tableName,
+      Key: {
+        ':recordType': {
+          S: PrimaryKeyValues.USER
+        },
+        'recordUniqueInformation': {
+          S: email
+        }
+      }
+    });
+    await this.dbClient.send(deleteItemCommand);
+  }
+
   async getUser(email: string): Promise<User> {
     const queryCommand = new QueryCommand({
       TableName: this.tableName,
@@ -21,11 +37,11 @@ export default class UserRepostory implements IUserRepository {
         ':recordType': {
           S: PrimaryKeyValues.USER
         },
-        ':uniqueInformation': {
+        ':recordUniqueInformation': {
           S: email
         }
       }, 
-      KeyConditionExpression: 'recordType = :recordType AND recordUniqueInformation = :uniqueInformation'
+      KeyConditionExpression: 'recordType = :recordType AND recordUniqueInformation = :recordUniqueInformation'
     });
 
     const result = await this.dbClient.send(queryCommand);
