@@ -33,7 +33,7 @@ export default class UserService {
 
   private async areUsersCredentialsCorrect(userCredentialVerificationPayload: UserCredentialVerificationPayload): Promise<boolean> {
     const { email, password } = userCredentialVerificationPayload;
-    const user = await this.userRepository.getUser(email);
+    const user = await this.userRepository.getUser({ email });
     const { hashedPassword, salt } = user;
     return isHashedPasswordCorrect({
       hashedPassword,

@@ -21,6 +21,10 @@ export type DeleteUserPayload = {
   password: string
 };
 
+export type GetUserPayload = {
+  email: string
+};
+
 export type UserCredentialVerificationPayload = {
   email: string,
   password: string

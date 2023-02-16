@@ -2,7 +2,7 @@ import { AttributeValue, DynamoDBClient, QueryCommand, UpdateItemCommand, PutIte
 import { PrimaryKeyValues } from '../db/database.types';
 import { generateRandomToken, hashPassword } from '../shared/cryptoUtils';
 import IUserRepository from './user.repository.interface';
-import { DeleteUserPayload, LogoutUserPayload, RegisterUserPayload, UpdateUserTokenPayload, User } from './types/user.types';
+import { DeleteUserPayload, GetUserPayload, LogoutUserPayload, RegisterUserPayload, UpdateUserTokenPayload, User } from './types/user.types';
 
 export default class UserRepostory implements IUserRepository {
   private dbClient: DynamoDBClient;
@@ -30,7 +30,8 @@ export default class UserRepostory implements IUserRepository {
     await this.dbClient.send(deleteItemCommand);
   }
 
-  async getUser(email: string): Promise<User> {
+  async getUser(getUserPayload: GetUserPayload): Promise<User> {
+    const { email } = getUserPayload; 
     const queryCommand = new QueryCommand({
       TableName: this.tableName,
       ExpressionAttributeValues: {
@@ -45,11 +46,11 @@ export default class UserRepostory implements IUserRepository {
     });
 
     const result = await this.dbClient.send(queryCommand);
-    if (!result.Items) {
+    if (!result || !result.Items) {
       throw new Error('User not found');
     } 
     if (result.Items.length > 1) {
-      throw new Error('Two same users found');
+      throw new Error('Multiple users with same email found');
     }
     const userRecord = result.Items[0];
     return this.mapUserRecordToUser(userRecord);
