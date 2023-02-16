@@ -28,6 +28,11 @@ const wrapAsAttributeValue = (value: string) => ({
 
 describe('UserRepository tests', () => {
   const tableName = 'test-table-name';
+
+  beforeEach(() => {
+    sendSpy.mockReset();
+  });
+
   describe('deleteUser method', () => {
     it('Should delete user', async () => {
       const mockDynamoDbClient = new (DynamoDBClient as jest.Mock)();
