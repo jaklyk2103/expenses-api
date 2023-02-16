@@ -1,10 +1,12 @@
 import UserRepostory from "./user.repository";
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DeleteUserPayload, GetUserPayload, RegisterUserPayload, User } from "./types/user.types";
+import { DeleteUserPayload, GetUserPayload, RegisterUserPayload, UpdateUserTokenPayload, User } from "./types/user.types";
 import { PrimaryKeyValues } from "../db/database.types";
 
+const randomToken = 'test-random-token';
 const sendSpy = jest.fn();
 const mockHashPassword = jest.fn();
+const mockGenerateRandomToken = jest.fn().mockImplementation(() => randomToken);
 
 jest.mock('@aws-sdk/client-dynamodb', () => ({
   DynamoDBClient: jest.fn().mockImplementation(() => ({
@@ -12,10 +14,12 @@ jest.mock('@aws-sdk/client-dynamodb', () => ({
   })),
   DeleteItemCommand: jest.fn().mockImplementation((arg) => arg),
   QueryCommand: jest.fn().mockImplementation((arg) => arg),
-  PutItemCommand: jest.fn().mockImplementation((arg) => arg)
+  PutItemCommand: jest.fn().mockImplementation((arg) => arg),
+  UpdateItemCommand: jest.fn().mockImplementation((arg) => arg)
 }));
 jest.mock('../shared/cryptoUtils', () => ({
-  hashPassword: () => mockHashPassword()
+  hashPassword: () => mockHashPassword(),
+  generateRandomToken: () => mockGenerateRandomToken()
 }));
 
 const wrapAsAttributeValue = (value: string) => ({
@@ -160,5 +164,37 @@ describe('UserRepository tests', () => {
     });
   });
 
-  
+  describe('updateUserToken method', () => {
+    it('Should update user token', async () => {
+      const mockDynamoDbClient = new (DynamoDBClient as jest.Mock)();
+      const userRepository = new UserRepostory(mockDynamoDbClient, tableName);
+
+      const payload: UpdateUserTokenPayload = {
+        email: 'test-email'
+      }
+      await userRepository.updateUserToken(payload);
+
+      expect(sendSpy.mock.calls).toHaveLength(1);
+      expect(sendSpy.mock.calls[0][0]).toMatchObject({
+        TableName: tableName,
+        Key: {
+          recordType: {
+            S: PrimaryKeyValues.USER
+          },
+          recordUniqueInformation: {
+            S: 'test-email'
+          }
+        },
+        ExpressionAttributeValues: {
+          ':newTokenValue': {
+            S: randomToken
+          },
+          ':newTimestampValue': {
+            S: expect.any(String)
+          }
+        },
+        UpdateExpression: 'SET sessionToken = :newTokenValue, sessionTokenValidityTimestampMsUtc = :newTimestampValue'
+      });
+    });
+  });
 })
