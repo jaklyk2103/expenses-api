@@ -52,7 +52,7 @@ describe('UserRepository tests', () => {
       sessionTokenValidityTimestampMsUtc: wrapAsAttributeValue('123123123')
     };
 
-    it('Should retrieve user data and maps it correctly to User type', async () => {
+    it('Should retrieve user data and map it correctly to User type', async () => {
       sendSpy.mockImplementationOnce(() => ({
         Items: [mockUserRetrievedFromDb]
       }));
@@ -87,19 +87,33 @@ describe('UserRepository tests', () => {
       });
     });
 
-    it('Should throw "User not found" error when user was not found in db', async () => {
+    it('Should throw User not found error when user was not found in db', async () => {
+      const mockDynamoDbClient = new (DynamoDBClient as jest.Mock)();
+      const userRepository = new UserRepostory(mockDynamoDbClient, 'test-table-name');
 
+      const payload: GetUserPayload = {
+        email: 'test-email@test.com'
+      }
 
-
+      expect(async () => { await userRepository.getUser(payload); }).rejects.toThrowErrorMatchingInlineSnapshot('"User not found"');
     });
 
-    it('Should throw "Multiple users with same email found" when query returns 2 users', async () => {
+    it('Should throw Multiple users with same email found when query returns 2 users', async () => {
       sendSpy.mockImplementationOnce(() => ({
         Items: [
           mockUserRetrievedFromDb,
           mockUserRetrievedFromDb
         ]
       }));
+
+      const mockDynamoDbClient = new (DynamoDBClient as jest.Mock)();
+      const userRepository = new UserRepostory(mockDynamoDbClient, 'test-table-name');
+
+      const payload: GetUserPayload = {
+        email: 'test-email@test.com'
+      }
+
+      expect(async () => { await userRepository.getUser(payload); }).rejects.toThrowErrorMatchingInlineSnapshot('"Multiple users with same email found"');
     })
   });
 })
