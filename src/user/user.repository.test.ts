@@ -1,15 +1,21 @@
 import UserRepostory from "./user.repository";
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DeleteUserPayload, GetUserPayload, User } from "./types/user.types";
+import { DeleteUserPayload, GetUserPayload, RegisterUserPayload, User } from "./types/user.types";
+import { PrimaryKeyValues } from "../db/database.types";
 
 const sendSpy = jest.fn();
+const mockHashPassword = jest.fn();
 
 jest.mock('@aws-sdk/client-dynamodb', () => ({
   DynamoDBClient: jest.fn().mockImplementation(() => ({
     send: (arg: any) => sendSpy(arg)
   })),
   DeleteItemCommand: jest.fn().mockImplementation((arg) => arg),
-  QueryCommand: jest.fn().mockImplementation((arg) => arg)
+  QueryCommand: jest.fn().mockImplementation((arg) => arg),
+  PutItemCommand: jest.fn().mockImplementation((arg) => arg)
+}));
+jest.mock('../shared/cryptoUtils', () => ({
+  hashPassword: () => mockHashPassword()
 }));
 
 const wrapAsAttributeValue = (value: string) => ({
@@ -17,10 +23,11 @@ const wrapAsAttributeValue = (value: string) => ({
 });
 
 describe('UserRepository tests', () => {
+  const tableName = 'test-table-name';
   describe('deleteUser method', () => {
     it('Should delete user', async () => {
       const mockDynamoDbClient = new (DynamoDBClient as jest.Mock)();
-      const userRepository = new UserRepostory(mockDynamoDbClient, 'test-table-name');
+      const userRepository = new UserRepostory(mockDynamoDbClient, tableName);
 
       const payload: DeleteUserPayload = {
         email: 'test-email',
@@ -30,7 +37,7 @@ describe('UserRepository tests', () => {
 
       expect(sendSpy.mock.calls).toHaveLength(1);
       expect(sendSpy.mock.calls[0][0]).toMatchObject({
-        TableName: 'test-table-name',
+        TableName: tableName,
       Key: {
         ':recordType': {
           S: 'USER'
@@ -58,7 +65,7 @@ describe('UserRepository tests', () => {
       }));
 
       const mockDynamoDbClient = new (DynamoDBClient as jest.Mock)();
-      const userRepository = new UserRepostory(mockDynamoDbClient, 'test-table-name');
+      const userRepository = new UserRepostory(mockDynamoDbClient, tableName);
 
       const payload: GetUserPayload = {
         email: 'test-email@test.com'
@@ -67,7 +74,7 @@ describe('UserRepository tests', () => {
 
       expect(sendSpy.mock.calls).toHaveLength(1);
       expect(sendSpy.mock.calls[0][0]).toMatchObject({
-        TableName: 'test-table-name',
+        TableName: tableName,
         ExpressionAttributeValues: {
           ':recordType': {
             S: 'USER'
@@ -89,7 +96,7 @@ describe('UserRepository tests', () => {
 
     it('Should throw User not found error when user was not found in db', async () => {
       const mockDynamoDbClient = new (DynamoDBClient as jest.Mock)();
-      const userRepository = new UserRepostory(mockDynamoDbClient, 'test-table-name');
+      const userRepository = new UserRepostory(mockDynamoDbClient, tableName);
 
       const payload: GetUserPayload = {
         email: 'test-email@test.com'
@@ -107,7 +114,7 @@ describe('UserRepository tests', () => {
       }));
 
       const mockDynamoDbClient = new (DynamoDBClient as jest.Mock)();
-      const userRepository = new UserRepostory(mockDynamoDbClient, 'test-table-name');
+      const userRepository = new UserRepostory(mockDynamoDbClient, tableName);
 
       const payload: GetUserPayload = {
         email: 'test-email@test.com'
@@ -116,4 +123,42 @@ describe('UserRepository tests', () => {
       expect(async () => { await userRepository.getUser(payload); }).rejects.toThrowErrorMatchingInlineSnapshot('"Multiple users with same email found"');
     })
   });
+
+  describe('registerUser method', () => {
+    it('Should register user', async () => {
+      const hashedPassword = 'test-hashed-password';
+      const salt = 'test-salt';
+      mockHashPassword.mockImplementationOnce(() => ({ hashedPassword, salt }));
+
+      const mockDynamoDbClient = new (DynamoDBClient as jest.Mock)();
+      const userRepository = new UserRepostory(mockDynamoDbClient, tableName);
+
+      const payload: RegisterUserPayload = {
+        email: 'test-email',
+        password: 'test-password'
+      }
+      await userRepository.registerUser(payload);
+
+      expect(sendSpy.mock.calls).toHaveLength(1);
+      expect(sendSpy.mock.calls[0][0]).toMatchObject({
+        TableName: tableName,
+        Item: {
+          recordType: {
+            S: PrimaryKeyValues.USER
+          },
+          recordUniqueInformation: {
+            S: 'test-email'
+          },
+          hashedPassword: {
+            S: hashedPassword
+          },
+          salt: {
+            S: salt
+          }
+        }
+    });
+    });
+  });
+
+  
 })
