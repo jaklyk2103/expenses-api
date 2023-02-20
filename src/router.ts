@@ -9,11 +9,36 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 const dynamoDbClient = new DynamoDBClient({ region: 'eu-west-1' });
 
 router.get('/expenses', async (req: Request, res: Response) => {
-  const expensesRepository = new ExpensesRepository();
+  const expensesRepository = new ExpensesRepository(dynamoDbClient, 'expenses-test');
   const expensesService = new ExpensesService(expensesRepository);
 
   const expenses = await expensesService.getExpenses();
   return res.json(expenses).status(200);
+});
+
+router.get('/user/expenses', async (req: Request, res: Response) => {
+  const expensesRepository = new ExpensesRepository(dynamoDbClient, 'expenses-test');
+  const expensesService = new ExpensesService(expensesRepository);
+
+  const email = req.query.email as string;
+
+  const expenses = await expensesService.getExpensesForUser({ email });
+  return res.json(expenses).status(200);
+});
+
+router.post('/expense', async (req: Request, res: Response) => {
+  const expensesRepository = new ExpensesRepository(dynamoDbClient, 'expenses-test');
+  const expensesService = new ExpensesService(expensesRepository);
+
+  const { expenseOwnerEmail, description, value, currency } = req.body;
+  await expensesService.addExpense({
+    expenseOwnerEmail,
+    description,
+    value,
+    currency
+  });
+
+  res.status(200).send('Added expense');
 });
 
 router.post('/login', async (req: Request, res: Response) => {
@@ -56,10 +81,6 @@ router.post('/user/delete', async (req: Request, res: Response) => {
   const { email, password } = req.body;
   await userService.deleteUser({ email, password });
   res.status(200).send('Deleted user successfully');
-});
-
-router.post('/expense', (req: Request, res: Response) => {
-  res.send('Hello World!');
 });
 
 export default router;

@@ -39,3 +39,7 @@ export const isHashedPasswordCorrect = (hashedPasswordVerificationPayload: Hashe
     });
   });
 };
+
+export const generateUuid = (): string => {
+  return crypto.randomUUID();
+};

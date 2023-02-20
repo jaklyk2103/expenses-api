@@ -50,7 +50,7 @@ describe('UserService tests', () => {
       await userService.loginUser(payload);
 
       expect(getUserMock.mock.calls).toHaveLength(1);
-      expect(getUserMock.mock.calls[0][0]).toBe('test-email');
+      expect(getUserMock.mock.calls[0][0]).toStrictEqual({email: 'test-email'});
       expect(updateUserTokenSpy.mock.calls).toHaveLength(1);
       expect(updateUserTokenSpy.mock.calls[0][0]).toMatchObject(payload);
     });

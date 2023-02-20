@@ -31,3 +31,18 @@ Content-Type: application/json
   "email": "test@email.com",
   "password": "testpassword123"
 }
+
+###
+POST https://fs4d02d2t1.execute-api.eu-west-1.amazonaws.com/prod/expense HTTP/1.1
+Content-Type: application/json
+
+{
+  "expenseOwnerEmail": "test@email.com",
+  "value": "233",
+  "currency": "PLN",
+  "description": "paliwko 4"
+}
+
+###
+GET https://fs4d02d2t1.execute-api.eu-west-1.amazonaws.com/prod/user/expenses?email=test@email.com HTTP/1.1
+Content-Type: application/json
