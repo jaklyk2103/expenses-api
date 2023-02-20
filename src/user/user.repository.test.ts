@@ -1,6 +1,6 @@
 import UserRepostory from "./user.repository";
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DeleteUserPayload, GetUserPayload, RegisterUserPayload, UpdateUserTokenPayload, User } from "./types/user.types";
+import { DeleteUserPayload, GetUserPayload, RegisterUserPayload, UpdateUserTokenPayload, LogoutUserPayload, User } from "./types/user.types";
 import { PrimaryKeyValues } from "../db/database.types";
 
 const randomToken = 'test-random-token';
@@ -199,6 +199,37 @@ describe('UserRepository tests', () => {
           }
         },
         UpdateExpression: 'SET sessionToken = :newTokenValue, sessionTokenValidityTimestampMsUtc = :newTimestampValue'
+      });
+    });
+  });
+
+  describe('deleteUserToken method', () => {
+    it('Should delete user token', async () => {
+      const mockDynamoDbClient = new (DynamoDBClient as jest.Mock)();
+      const userRepository = new UserRepostory(mockDynamoDbClient, tableName);
+
+      const payload: LogoutUserPayload = {
+        email: 'test-email'
+      }
+      await userRepository.deleteUserToken(payload);
+
+      expect(sendSpy.mock.calls).toHaveLength(1);
+      expect(sendSpy.mock.calls[0][0]).toMatchObject({
+        TableName: tableName,
+        Key: {
+          recordType: {
+            S: PrimaryKeyValues.USER
+          },
+          recordUniqueInformation: {
+            S: 'test-email'
+          }
+        },
+        ExpressionAttributeValues: {
+          ':nullValue': {
+            NULL: true
+          }
+        },
+        UpdateExpression: 'SET sessionToken = :nullValue, sessionTokenValidityTimestampMsUtc = :nullValue'
       });
     });
   });
