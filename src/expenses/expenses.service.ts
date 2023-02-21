@@ -1,6 +1,5 @@
 import ExpensesRepository from './expenses.repository';
-import { Expense } from './expenses.types';
-import { GetExpensesForUserPayload } from './types/expense.types';
+import { GetExpensesForUserPayload, AddExpensePayload, Expense } from './expenses.types';
 
 export default class ExpensesService {
   private expensesRepository: ExpensesRepository;
@@ -17,7 +16,7 @@ export default class ExpensesService {
     return this.expensesRepository.getAllExpenses();
   }
 
-  async addExpense(expense: Expense): Promise<void> {
-    return this.expensesRepository.addExpense(expense);
+  async addExpense(addExpensePayload: AddExpensePayload): Promise<void> {
+    return this.expensesRepository.addExpense(addExpensePayload);
   }
 }

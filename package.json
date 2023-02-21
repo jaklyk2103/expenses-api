@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest --passWithNoTests",
     "build": "tsc",
-    "run-locally": "node dist/local.js",
+    "local": "node dist/local.js",
     "deploy": "node deployment/deploymentPipelineRunner.js"
   },
   "author": "",

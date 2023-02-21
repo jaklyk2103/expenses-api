@@ -44,7 +44,7 @@ Content-Type: application/json
 }
 
 ###
-GET https://fs4d02d2t1.execute-api.eu-west-1.amazonaws.com/prod/user/expenses?email=test@email.com HTTP/1.1
+GET https://fs4d02d2t1.execute-api.eu-west-1.amazonaws.com/prod/user/expenses?email=test%40email.com HTTP/1.1
 Content-Type: application/json
 
 ###
