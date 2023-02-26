@@ -50,8 +50,7 @@ router.post('/login', async (req: Request, res: Response) => {
     email,
     password
   });
-  // res.cookie('userSessionToken', sessionToken, { httpOnly: true, domain: 'localhost', path: '/'});
-  res.cookie('userSessionToken', sessionToken, { httpOnly: true, path: '/' }).status(200).send(sessionToken);
+  res.cookie('userSessionToken', sessionToken, { path: '/', httpOnly: true, secure: true, sameSite: 'none' }).status(200).send(sessionToken);
 });
 
 router.post('/logout', async (req: Request, res: Response) => {

@@ -10,6 +10,7 @@ app.use(cookieParser());
 app.use((req: Request, res: Response, next: NextFunction ) => {
   res.setHeader('Access-Control-Allow-Origin', 'https://expenses-8c745.web.app');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
   next();
 });
 app.use(router);
