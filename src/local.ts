@@ -4,9 +4,11 @@ import router from './router';
 const PORT = 3003;
 
 const localApp = express();
+localApp.use(express.json());
 
 localApp.use((req: Request, res: Response, next: NextFunction) => {
   res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   next();
 });
 
