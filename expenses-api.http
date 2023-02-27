@@ -2,8 +2,8 @@ POST https://fs4d02d2t1.execute-api.eu-west-1.amazonaws.com/prod/register HTTP/1
 content-type: application/json
 
 {
-    "email": "test@email.com",
-    "password": "testpassword123"
+    "email": "kubeckk21@gmail.com",
+    "password": "KBA92wj*M#oC!2mr%DouW3b"
 }
 
 ###

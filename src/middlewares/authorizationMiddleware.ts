@@ -5,7 +5,7 @@ import UserService from '../user/user.service';
 
 export async function authorizationMiddleware(req: Request, res: Response, next: NextFunction) {
   console.log(`req.path: ${req.path}`);
-  if (req.path === '/login' || (req.method !== 'GET' && req.method !== 'POST')) {
+  if (req.path === '/login' || req.path ==='/register' || (req.method !== 'GET' && req.method !== 'POST')) {
     next();
   } else {
     console.log('in middleware');
