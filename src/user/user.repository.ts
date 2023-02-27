@@ -140,7 +140,7 @@ export default class UserRepostory implements IUserRepository {
       hashedPassword: hashedPassword?.S || '',
       salt: salt?.S || '',
       sessionToken: sessionToken?.S || '',
-      sessionTokenValidityTimestampMsUtc: sessionTokenValidityTimestampMsUtc?.S || '',
+      sessionTokenExpiryTimestampMsUtc: sessionTokenValidityTimestampMsUtc?.S || '',
     };
   }
 

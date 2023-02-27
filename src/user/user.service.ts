@@ -1,12 +1,12 @@
 import IUserRepository from './user.repository.interface';
-import { DeleteUserPayload, LoginUserPayload, LogoutUserPayload, RegisterUserPayload, UserCredentialVerificationPayload } from './types/user.types';
+import { DeleteUserPayload, LoginUserPayload, LogoutUserPayload, RegisterUserPayload, UserCredentialVerificationPayload, VerifyUserAuthenticityPayload } from './types/user.types';
 import { isHashedPasswordCorrect } from '../shared/cryptoUtils';
 
 export default class UserService {
   private userRepository: IUserRepository;
 
-  constructor(loginRepository: IUserRepository) {
-    this.userRepository = loginRepository;
+  constructor(userRepository: IUserRepository) {
+    this.userRepository = userRepository;
   }
 
   async registerUser(registerUserPayload: RegisterUserPayload): Promise<void> {
@@ -29,6 +29,23 @@ export default class UserService {
     const areUsersCredentialsCorrect = await this.areUsersCredentialsCorrect(deleteUserPayload);
     if (!areUsersCredentialsCorrect) throw new Error('Users credentials incorrect.');
     return this.userRepository.deleteUser(deleteUserPayload);
+  }
+
+  async isUserAuthentic(verifyUserAuthenticityPayload: VerifyUserAuthenticityPayload): Promise<boolean> {
+    const { email, userSessionToken } = verifyUserAuthenticityPayload;
+
+    const user = await this.userRepository.getUser({
+      email
+    });
+
+    const isTokenFromPayloadValid = userSessionToken === user.sessionToken;
+    const isTokenExpired = this.isUserSessionTokenExpired(Number(user.sessionTokenExpiryTimestampMsUtc));
+
+    return isTokenFromPayloadValid && !isTokenExpired;
+  }
+
+  private isUserSessionTokenExpired(sessionTokenExpiryTimestampMsUtc: number): boolean {
+    return Date.now() < sessionTokenExpiryTimestampMsUtc;
   }
 
   private async areUsersCredentialsCorrect(userCredentialVerificationPayload: UserCredentialVerificationPayload): Promise<boolean> {

@@ -21,6 +21,11 @@ export type DeleteUserPayload = {
   password: string
 };
 
+export type VerifyUserAuthenticityPayload = {
+  email: string,
+  userSessionToken: string
+};
+
 export type GetUserPayload = {
   email: string
 };
@@ -35,5 +40,5 @@ export type User = {
   hashedPassword: string,
   salt: string,
   sessionToken: string,
-  sessionTokenValidityTimestampMsUtc: string
+  sessionTokenExpiryTimestampMsUtc: string
 };
