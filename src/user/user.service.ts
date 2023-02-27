@@ -34,18 +34,28 @@ export default class UserService {
   async isUserAuthentic(verifyUserAuthenticityPayload: VerifyUserAuthenticityPayload): Promise<boolean> {
     const { email, userSessionToken } = verifyUserAuthenticityPayload;
 
-    const user = await this.userRepository.getUser({
-      email
-    });
-
-    const isTokenFromPayloadValid = userSessionToken === user.sessionToken;
-    const isTokenExpired = this.isUserSessionTokenExpired(Number(user.sessionTokenExpiryTimestampMsUtc));
-
-    return isTokenFromPayloadValid && !isTokenExpired;
+    try {
+      const user = await this.userRepository.getUser({
+        email
+      });
+      
+      const isTokenFromPayloadValid = userSessionToken === user.sessionToken;
+      const isTokenExpired = this.isUserSessionTokenExpired(Number(user.sessionTokenExpiryTimestampMsUtc));
+      
+      console.log(`isTokenFromPayloadValid: ${isTokenFromPayloadValid}`);
+      console.log(`isTokenExpired: ${isTokenExpired}`);
+      
+      return isTokenFromPayloadValid && !isTokenExpired;
+    } catch (error) {
+      return false;
+    }
   }
 
   private isUserSessionTokenExpired(sessionTokenExpiryTimestampMsUtc: number): boolean {
-    return Date.now() < sessionTokenExpiryTimestampMsUtc;
+    console.log(`sessionTokenExpiryTimestampMsUtc: ${sessionTokenExpiryTimestampMsUtc}`);
+    console.log(`Date.now(): ${Date.now()}`);
+    console.log(`I'll return: ${Date.now() < sessionTokenExpiryTimestampMsUtc}`);
+    return Date.now() > sessionTokenExpiryTimestampMsUtc;
   }
 
   private async areUsersCredentialsCorrect(userCredentialVerificationPayload: UserCredentialVerificationPayload): Promise<boolean> {
