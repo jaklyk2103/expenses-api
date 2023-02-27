@@ -65,7 +65,7 @@ describe('UserRepository tests', () => {
       hashedPassword: wrapAsAttributeValue('123'),
       salt: wrapAsAttributeValue('abc'),
       sessionToken: wrapAsAttributeValue('abc123'),
-      sessionTokenValidityTimestampMsUtc: wrapAsAttributeValue('123123123')
+      sessionTokenExpiryTimestampMsUtc: wrapAsAttributeValue('123123123')
     };
 
     it('Should retrieve user data and map it correctly to User type', async () => {
@@ -99,7 +99,7 @@ describe('UserRepository tests', () => {
         hashedPassword: "123",
         salt: "abc",
         sessionToken: "abc123",
-        sessionTokenValidityTimestampMsUtc: "123123123",
+        sessionTokenExpiryTimestampMsUtc: "123123123",
       });
     });
 
@@ -198,7 +198,7 @@ describe('UserRepository tests', () => {
             S: expect.any(String)
           }
         },
-        UpdateExpression: 'SET sessionToken = :newTokenValue, sessionTokenValidityTimestampMsUtc = :newTimestampValue'
+        UpdateExpression: 'SET sessionToken = :newTokenValue, sessionTokenExpiryTimestampMsUtc = :newTimestampValue'
       });
     });
   });
@@ -229,7 +229,7 @@ describe('UserRepository tests', () => {
             NULL: true
           }
         },
-        UpdateExpression: 'SET sessionToken = :nullValue, sessionTokenValidityTimestampMsUtc = :nullValue'
+        UpdateExpression: 'SET sessionToken = :nullValue, sessionTokenExpiryTimestampMsUtc = :nullValue'
       });
     });
   });

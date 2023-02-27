@@ -77,7 +77,7 @@ export default class UserRepostory implements IUserRepository {
           S: this.calculateSessionTokenExpiryTimestamp()
         }
       },
-      UpdateExpression: 'SET sessionToken = :newTokenValue, sessionTokenValidityTimestampMsUtc = :newTimestampValue'
+      UpdateExpression: 'SET sessionToken = :newTokenValue, sessionTokenExpiryTimestampMsUtc = :newTimestampValue'
     });
     
     await this.dbClient.send(updateItemCommand);
@@ -102,7 +102,7 @@ export default class UserRepostory implements IUserRepository {
           NULL: true
         }
       },
-      UpdateExpression: 'SET sessionToken = :nullValue, sessionTokenValidityTimestampMsUtc = :nullValue'
+      UpdateExpression: 'SET sessionToken = :nullValue, sessionTokenExpiryTimestampMsUtc = :nullValue'
     });
     await this.dbClient.send(updateItemCommand);
   }
@@ -134,13 +134,13 @@ export default class UserRepostory implements IUserRepository {
   }
 
   private mapUserRecordToUser(userItem: Record<string, AttributeValue>): User {
-    const { email, hashedPassword, salt, sessionToken, sessionTokenValidityTimestampMsUtc } = userItem;
+    const { email, hashedPassword, salt, sessionToken, sessionTokenExpiryTimestampMsUtc } = userItem;
     return {
       email: email?.S || '',
       hashedPassword: hashedPassword?.S || '',
       salt: salt?.S || '',
       sessionToken: sessionToken?.S || '',
-      sessionTokenExpiryTimestampMsUtc: sessionTokenValidityTimestampMsUtc?.S || '',
+      sessionTokenExpiryTimestampMsUtc: sessionTokenExpiryTimestampMsUtc?.S || '',
     };
   }
 
