@@ -30,8 +30,9 @@ router.post('/expense', async (req: Request, res: Response) => {
   const expensesRepository = new ExpensesRepository(dynamoDbClient, 'expenses-test');
   const expensesService = new ExpensesService(expensesRepository);
 
-  const { expenseOwnerEmail, description, value, currency } = req.body;
+  const { expenseOwnerEmail, date, description, value, currency } = req.body;
   await expensesService.addExpense({
+    date,
     expenseOwnerEmail,
     description,
     value,

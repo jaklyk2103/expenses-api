@@ -54,7 +54,8 @@ export default class ExpensesRepository implements IExpensesRepository {
   }
 
   async addExpense(addExpensePayload: AddExpensePayload): Promise<void> {
-    const { expenseOwnerEmail, description, value, currency } = addExpensePayload;
+    const { expenseOwnerEmail, date, description, value, currency } = addExpensePayload;
+    console.log(`addExpensePayload: ${JSON.stringify(addExpensePayload)}`);
     const putItemCommand = new PutItemCommand({
       TableName: this.tableName,
       Item: {
@@ -66,6 +67,9 @@ export default class ExpensesRepository implements IExpensesRepository {
         },
         expenseOwnerEmail: {
           S: expenseOwnerEmail
+        },
+        date: {
+          S: date
         },
         value: {
           N: value.toString()
@@ -82,10 +86,11 @@ export default class ExpensesRepository implements IExpensesRepository {
   }
 
   private mapRecordToExpense(record: Record<string, AttributeValue>): Expense {
-    const { expenseOwnerEmail, currency, description, value, recordUniqueInformation } = record;
+    const { expenseOwnerEmail, date, currency, description, value, recordUniqueInformation } = record;
     const id = recordUniqueInformation?.S?.split('#')[2] || generateUuid();
     return {
       id,
+      date: date?.S || '',
       expenseOwnerEmail: expenseOwnerEmail?.S || '',
       currency: currency?.S || '',
       description: description?.S || '',
