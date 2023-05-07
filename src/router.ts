@@ -31,7 +31,7 @@ router.post('/expense', async (req: Request, res: Response) => {
   const expensesService = new ExpensesService(expensesRepository);
 
   const { expenseOwnerEmail, date, description, value, currency } = req.body;
-  await expensesService.addExpense({
+  await expensesService.putExpense({
     date,
     expenseOwnerEmail,
     description,
@@ -39,7 +39,7 @@ router.post('/expense', async (req: Request, res: Response) => {
     currency
   });
 
-  res.status(200).send('Added expense');
+  res.status(200).send('Put expense');
 });
 
 router.post('/login', async (req: Request, res: Response) => {

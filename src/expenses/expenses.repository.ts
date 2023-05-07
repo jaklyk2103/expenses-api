@@ -1,6 +1,6 @@
 import IExpensesRepository from './expenses.repository.interface';
 import { buildExpenseSortKey } from '../shared/dbUtils';
-import { AddExpensePayload, Expense } from './expenses.types';
+import { PutExpensePayload, Expense } from './expenses.types';
 import { generateUuid } from '../shared/cryptoUtils';
 import { AttributeValue, DynamoDBClient, QueryCommand, PutItemCommand } from '@aws-sdk/client-dynamodb';
 import { PrimaryKeyValues } from '../db/database.types';
@@ -53,9 +53,9 @@ export default class ExpensesRepository implements IExpensesRepository {
     return result.Items.map(this.mapRecordToExpense);
   }
 
-  async addExpense(addExpensePayload: AddExpensePayload): Promise<void> {
-    const { expenseOwnerEmail, date, description, value, currency } = addExpensePayload;
-    console.log(`addExpensePayload: ${JSON.stringify(addExpensePayload)}`);
+  async putExpense(putExpensePayload: PutExpensePayload): Promise<void> {
+    const { expenseOwnerEmail, date, description, value, currency, id } = putExpensePayload;
+    console.log(`addExpensePayload: ${JSON.stringify(putExpensePayload)}`);
     const putItemCommand = new PutItemCommand({
       TableName: this.tableName,
       Item: {
@@ -63,7 +63,7 @@ export default class ExpensesRepository implements IExpensesRepository {
           S: PrimaryKeyValues.EXPENSE
         },
         recordUniqueInformation: {
-          S: buildExpenseSortKey(expenseOwnerEmail)
+          S: buildExpenseSortKey(expenseOwnerEmail, id)
         },
         expenseOwnerEmail: {
           S: expenseOwnerEmail
