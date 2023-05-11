@@ -5,12 +5,13 @@ const fs = require("fs");
 class CommandExecutor {
   execute = function (command) {
     return new Promise((resolve, reject) => {
-      exec(command, (error, stdout, stderr) => {
+      const childProcess = exec(command, {},(error, stdout, stderr) => {
         if (error) {
           return reject(error);
         }
         return resolve(stdout);
       });
+      childProcess.stdout.pipe(process.stdout);
     });
   };
 }
@@ -24,35 +25,30 @@ function goToTheRootProjectLocation () {
 
 function removeDependencies() {
   goToTheRootProjectLocation();
-  process.stdout.write("Deleting node modules directory... ");
+  process.stdout.write("#### Deleting node modules directory... ####\n");
   fs.rmSync("node_modules", { recursive: true, force: true });
-  process.stdout.write("Done.\n");
 }
 
 async function installDependencies(forProduction = false) {
-  const logMessage = forProduction ? 'Installing dependencies for production... ' : 'Installing dependencies... ';
+  const logMessage = forProduction ? '#### Installing dependencies for production... ####\n' : '#### Installing dependencies... ####\n';
   process.stdout.write(logMessage);
   await executor.execute(forProduction ? 'npm install --omit=dev' : 'npm install');
-  process.stdout.write('Done.\n');
 }
 
 async function buildApplication() {
-  process.stdout.write("Building application... ");
+  process.stdout.write("#### Building application... ####\n");
   await executor.execute('npm run build');
-  process.stdout.write('Done.\n');
 }
 
 function copyDependenciesToTheBuiltApplication() {
-  process.stdout.write("Copying node modules folder to dist... ");
+  process.stdout.write("#### Copying node modules folder to dist... ####\n");
   fs.cpSync("node_modules/", "dist/node_modules/", { recursive: true, force: true });
-  process.stdout.write('Done.\n');
 }
 
 async function deployApplicationUsingSamCli() {
   process.chdir("deployment");
-  process.stdout.write('Deploying application... ');
+  process.stdout.write('#### Deploying application... ####\n');
   await executor.execute('sam deploy');
-  process.stdout.write("Done.\n");
 }
 
 async function prepareApplicationForDeployment() {
@@ -65,9 +61,8 @@ async function prepareApplicationForDeployment() {
 }
 
 async function testApplication() {
-  process.stdout.write('Testing application... ');
+  process.stdout.write('#### Testing application... ####\n');
   await executor.execute('npm run test');
-  process.stdout.write('Done.\n');
 }
 
 async function deployApplication() {
