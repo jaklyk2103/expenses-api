@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest --passWithNoTests",
+    "test": "jest",
     "build": "tsc",
     "local": "node dist/local.js",
     "deploy": "node deployment/deploymentPipelineRunner.js"

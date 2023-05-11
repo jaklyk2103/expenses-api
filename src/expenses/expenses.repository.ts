@@ -55,7 +55,7 @@ export default class ExpensesRepository implements IExpensesRepository {
 
   async putExpense(putExpensePayload: PutExpensePayload): Promise<void> {
     const { expenseOwnerEmail, date, description, value, currency, id } = putExpensePayload;
-    console.log(`addExpensePayload: ${JSON.stringify(putExpensePayload)}`);
+    console.log(`putExpensePayload: ${JSON.stringify(putExpensePayload)}`);
     const putItemCommand = new PutItemCommand({
       TableName: this.tableName,
       Item: {
