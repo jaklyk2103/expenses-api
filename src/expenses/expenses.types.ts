@@ -11,6 +11,11 @@ export type PutExpensePayload = {
   id?: string;
 };
 
+export type DeleteExpensePayload = {
+  email: string;
+  id: string;
+}
+
 export type Expense = {
   id: string;
   date: string;

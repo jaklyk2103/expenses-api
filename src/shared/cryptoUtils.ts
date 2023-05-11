@@ -31,7 +31,6 @@ export const hashPassword = (password: string): Promise<HashPasswordOutput> => {
 
 export const isHashedPasswordCorrect = (hashedPasswordVerificationPayload: HashedPasswordVerificationPayload): Promise<boolean> => {
   const { hashedPassword, password, salt } = hashedPasswordVerificationPayload;
-  console.log(`do I have the payload?: ${JSON.stringify(hashedPasswordVerificationPayload)}`);
   return new Promise((resolve, reject) => {
     crypto.pbkdf2(password, salt, 1000, 64, 'sha512', (error, derivedKey) => {
       if (error) reject(error);

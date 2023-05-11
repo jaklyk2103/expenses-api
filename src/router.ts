@@ -37,6 +37,17 @@ router.post('/expense', async (req: Request, res: Response) => {
   res.status(200).send('Put expense');
 });
 
+router.post('/delete-expense', async (req: Request, res: Response) => {
+  const expensesRepository = new ExpensesRepository(dynamoDbClient, 'expenses-test');
+  const expensesService = new ExpensesService(expensesRepository);
+
+  await expensesService.deleteExpense({
+    ...req.body
+  });
+
+  res.status(200).send('Expense deleted');
+})
+
 router.post('/login', async (req: Request, res: Response) => {
   const userRepository = new UserRepository(dynamoDbClient, 'expenses-test');
   const userService = new UserService(userRepository);

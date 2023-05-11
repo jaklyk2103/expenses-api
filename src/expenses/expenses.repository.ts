@@ -1,8 +1,8 @@
 import IExpensesRepository from './expenses.repository.interface';
 import { buildExpenseSortKey } from '../shared/dbUtils';
-import { PutExpensePayload, Expense } from './expenses.types';
+import { PutExpensePayload, Expense, DeleteExpensePayload } from './expenses.types';
 import { generateUuid } from '../shared/cryptoUtils';
-import { AttributeValue, DynamoDBClient, QueryCommand, PutItemCommand } from '@aws-sdk/client-dynamodb';
+import { AttributeValue, DynamoDBClient, QueryCommand, PutItemCommand, DeleteItemCommand } from '@aws-sdk/client-dynamodb';
 import { PrimaryKeyValues } from '../db/database.types';
 import { GetExpensesForUserPayload } from './expenses.types';
 
@@ -55,7 +55,6 @@ export default class ExpensesRepository implements IExpensesRepository {
 
   async putExpense(putExpensePayload: PutExpensePayload): Promise<void> {
     const { expenseOwnerEmail, date, description, value, currency, id } = putExpensePayload;
-    console.log(`putExpensePayload: ${JSON.stringify(putExpensePayload)}`);
     const putItemCommand = new PutItemCommand({
       TableName: this.tableName,
       Item: {
@@ -83,6 +82,24 @@ export default class ExpensesRepository implements IExpensesRepository {
       }
     });
     await this.dbClient.send(putItemCommand);
+  }
+
+  async deleteExpense(payload: DeleteExpensePayload): Promise<void> { 
+    const { email, id } = payload;
+
+    const deleteItemCommand = new DeleteItemCommand({
+      Key: {
+        recordType: {
+          S: PrimaryKeyValues.EXPENSE
+        },
+        recordUniqueInformation: {
+          S: buildExpenseSortKey(email, id)
+        }
+      },
+      TableName: this.tableName
+    });
+
+    await this.dbClient.send(deleteItemCommand);
   }
 
   private mapRecordToExpense(record: Record<string, AttributeValue>): Expense {

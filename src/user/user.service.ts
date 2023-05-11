@@ -42,9 +42,6 @@ export default class UserService {
       const isTokenFromPayloadValid = userSessionToken === user.sessionToken;
       const isTokenExpired = this.isUserSessionTokenExpired(Number(user.sessionTokenExpiryTimestampMsUtc));
       
-      console.log(`isTokenFromPayloadValid: ${isTokenFromPayloadValid}`);
-      console.log(`isTokenExpired: ${isTokenExpired}`);
-      
       return isTokenFromPayloadValid && !isTokenExpired;
     } catch (error) {
       return false;
@@ -52,9 +49,6 @@ export default class UserService {
   }
 
   private isUserSessionTokenExpired(sessionTokenExpiryTimestampMsUtc: number): boolean {
-    console.log(`sessionTokenExpiryTimestampMsUtc: ${sessionTokenExpiryTimestampMsUtc}`);
-    console.log(`Date.now(): ${Date.now()}`);
-    console.log(`I'll return: ${Date.now() < sessionTokenExpiryTimestampMsUtc}`);
     return Date.now() > sessionTokenExpiryTimestampMsUtc;
   }
 
