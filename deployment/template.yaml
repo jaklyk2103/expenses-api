@@ -41,7 +41,7 @@ Resources:
               - "dynamodb:BatchWriteItem"
               - "dynamodb:PutItem"
               - "dynamodb:UpdateItem"
-            Resource: 'arn:aws:dynamodb:eu-west-1:121886677325:table/expenses-test'
+            Resource: 'arn:aws:dynamodb:eu-west-1:121886677325:table/prod'
 
   # MyApiBasePathMapping:
   #   Type: 'AWS::ApiGateway::BasePathMapping'

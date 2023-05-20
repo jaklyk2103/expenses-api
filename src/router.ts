@@ -9,7 +9,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 const dynamoDbClient = new DynamoDBClient({ region: 'eu-west-1' });
 
 router.get('/expenses', async (req: Request, res: Response) => {
-  const expensesRepository = new ExpensesRepository(dynamoDbClient, 'expenses-test');
+  const expensesRepository = new ExpensesRepository(dynamoDbClient, 'prod');
   const expensesService = new ExpensesService(expensesRepository);
 
   const expenses = await expensesService.getExpenses();
@@ -17,7 +17,7 @@ router.get('/expenses', async (req: Request, res: Response) => {
 });
 
 router.get('/user/expenses', async (req: Request, res: Response) => {
-  const expensesRepository = new ExpensesRepository(dynamoDbClient, 'expenses-test');
+  const expensesRepository = new ExpensesRepository(dynamoDbClient, 'prod');
   const expensesService = new ExpensesService(expensesRepository);
 
   const email = req.query.email as string;
@@ -27,7 +27,7 @@ router.get('/user/expenses', async (req: Request, res: Response) => {
 });
 
 router.post('/expense', async (req: Request, res: Response) => {
-  const expensesRepository = new ExpensesRepository(dynamoDbClient, 'expenses-test');
+  const expensesRepository = new ExpensesRepository(dynamoDbClient, 'prod');
   const expensesService = new ExpensesService(expensesRepository);
 
   await expensesService.putExpense({
@@ -38,7 +38,7 @@ router.post('/expense', async (req: Request, res: Response) => {
 });
 
 router.post('/delete-expense', async (req: Request, res: Response) => {
-  const expensesRepository = new ExpensesRepository(dynamoDbClient, 'expenses-test');
+  const expensesRepository = new ExpensesRepository(dynamoDbClient, 'prod');
   const expensesService = new ExpensesService(expensesRepository);
 
   await expensesService.deleteExpense({
@@ -46,10 +46,10 @@ router.post('/delete-expense', async (req: Request, res: Response) => {
   });
 
   res.status(200).send('Expense deleted');
-})
+});
 
 router.post('/login', async (req: Request, res: Response) => {
-  const userRepository = new UserRepository(dynamoDbClient, 'expenses-test');
+  const userRepository = new UserRepository(dynamoDbClient, 'prod');
   const userService = new UserService(userRepository);
 
   const { email, password } = req.body;
@@ -64,7 +64,7 @@ router.post('/login', async (req: Request, res: Response) => {
 });
 
 router.post('/logout', async (req: Request, res: Response) => {
-  const userRepository = new UserRepository(dynamoDbClient, 'expenses-test');
+  const userRepository = new UserRepository(dynamoDbClient, 'prod');
   const userService = new UserService(userRepository);
 
   const { email } = req.body;
@@ -73,7 +73,7 @@ router.post('/logout', async (req: Request, res: Response) => {
 });
 
 router.post('/register', async (req: Request, res: Response) => {
-  const userRepository = new UserRepository(dynamoDbClient, 'expenses-test');
+  const userRepository = new UserRepository(dynamoDbClient, 'prod');
   const userService = new UserService(userRepository);
 
   const { email, password } = req.body;
@@ -85,7 +85,7 @@ router.post('/register', async (req: Request, res: Response) => {
 });
 
 router.post('/user/delete', async (req: Request, res: Response) => {
-  const userRepository = new UserRepository(dynamoDbClient, 'expenses-test');
+  const userRepository = new UserRepository(dynamoDbClient, 'prod');
   const userService = new UserService(userRepository);
 
   const { email, password } = req.body;

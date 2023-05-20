@@ -11,7 +11,7 @@ export async function authorizationMiddleware(req: Request, res: Response, next:
     const userSessionToken = req.cookies?.userSessionToken;
     const userEmail = req.cookies?.userEmail;
 
-    const userRepository = new UserRepostory(dynamoDbClient, 'expenses-test');
+    const userRepository = new UserRepostory(dynamoDbClient, 'prod');
     const userService = new UserService(userRepository);
 
     const isUserAuthentic = userEmail && userSessionToken && await userService.isUserAuthentic({

@@ -18,7 +18,7 @@ export default class ExpensesRepository implements IExpensesRepository {
   async getAllExpenses(): Promise<Expense[]> {
 
     const queryCommand = new QueryCommand({
-      TableName: 'expenses-test',
+      TableName: 'prod',
       ExpressionAttributeValues: {
         ':recordType': {
           S: PrimaryKeyValues.EXPENSE
